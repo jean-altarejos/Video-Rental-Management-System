@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Video_Rental_Management_System.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Video_Rental_Management_System.Infrastructure.Persistence;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260728181843_CreateMovieAndGenre")]
+    partial class CreateMovieAndGenre
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,38 +88,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("GenreID");
 
                     b.ToTable("Genres");
-
-                    b.HasData(
-                        new
-                        {
-                            GenreID = 1,
-                            CreatedDate = new DateTime(2026, 7, 28, 18, 58, 14, 638, DateTimeKind.Utc).AddTicks(1113),
-                            GenreName = "Action"
-                        },
-                        new
-                        {
-                            GenreID = 2,
-                            CreatedDate = new DateTime(2026, 7, 28, 18, 58, 14, 638, DateTimeKind.Utc).AddTicks(1116),
-                            GenreName = "Comedy"
-                        },
-                        new
-                        {
-                            GenreID = 3,
-                            CreatedDate = new DateTime(2026, 7, 28, 18, 58, 14, 638, DateTimeKind.Utc).AddTicks(1118),
-                            GenreName = "Drama"
-                        },
-                        new
-                        {
-                            GenreID = 4,
-                            CreatedDate = new DateTime(2026, 7, 28, 18, 58, 14, 638, DateTimeKind.Utc).AddTicks(1119),
-                            GenreName = "Sci-Fi"
-                        },
-                        new
-                        {
-                            GenreID = 5,
-                            CreatedDate = new DateTime(2026, 7, 28, 18, 58, 14, 638, DateTimeKind.Utc).AddTicks(1120),
-                            GenreName = "Horror"
-                        });
                 });
 
             modelBuilder.Entity("Video_Rental_Management_System.Domain.Entities.Movie", b =>
@@ -135,9 +106,10 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("DateAdded")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("CAST(GETUTCDATE() AS DATE)");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<int>("GenreID")
+                    b.Property<int>("GenreId")
+                        .HasMaxLength(265)
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("ModifiedDate")
@@ -155,24 +127,13 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ReleaseDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.HasKey("MovieID");
 
-                    b.HasIndex("GenreID");
-
                     b.ToTable("Movies");
-                });
-
-            modelBuilder.Entity("Video_Rental_Management_System.Domain.Entities.Movie", b =>
-                {
-                    b.HasOne("Video_Rental_Management_System.Domain.Entities.Genre", "Genre")
-                        .WithMany()
-                        .HasForeignKey("GenreID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Genre");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { customerService } from '../services/customerService';
 
-
-
 export default function CustomerManager() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const [editingId, setEditingId] = useState(null);
+
+  // Search State
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -33,6 +34,18 @@ export default function CustomerManager() {
     }
   };
 
+  // Filter customers dynamically based on search term
+  const filteredCustomers = customers.filter((c) => {
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return true;
+
+    const nameMatch = c.customerName ? c.customerName.toLowerCase().includes(term) : false;
+    const emailMatch = c.email ? c.email.toLowerCase().includes(term) : false;
+    const idMatch = c.customerId ? c.customerId.toString().includes(term) : false;
+
+    return nameMatch || emailMatch || idMatch;
+  });
+
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +67,7 @@ export default function CustomerManager() {
 
     const payload = {
       name: formData.name.trim(),
-      customerName: formData.name.trim(),
+      customerName: formData.name.trim(), // Binds regardless of DTO property casing
       email: formData.email.trim(),
       birthDate: formData.birthDate ? formData.birthDate : null
     };
@@ -72,11 +85,10 @@ export default function CustomerManager() {
       loadCustomers(); // Refresh table
     } catch (err) {
       if (err.response && err.response.data) {
-        // Normalize error keys to camelCase so field lookup always succeeds
+        // Normalize error keys to camelCase for UI mapping
         const rawErrors = err.response.data;
         const normalized = {};
         Object.keys(rawErrors).forEach((key) => {
-          // Convert key like "Name" -> "name"
           const camelKey = key.charAt(0).toLowerCase() + key.slice(1);
           normalized[camelKey] = rawErrors[key];
         });
@@ -87,9 +99,9 @@ export default function CustomerManager() {
     }
   };
 
-  // Prepare form for Editing (FIXED: customerIdd -> customerId)
+  // Prepare form for Editing
   const handleEdit = (customer) => {
-    setEditingId(customer.customerId); // 👈 Fixed typo here
+    setEditingId(customer.customerId);
     setFormData({
       name: customer.customerName || '',
       email: customer.email || '',
@@ -98,12 +110,12 @@ export default function CustomerManager() {
     setValidationErrors({});
   };
 
-  // 3. DELETE (FIXED: customerId variable -> id parameter)
+  // 3. DELETE
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this customer?')) return;
 
     try {
-      await customerService.delete(id); // 👈 Fixed variable reference here
+      await customerService.delete(id);
       loadCustomers(); // Refresh table
     } catch (err) {
       console.error('Failed to delete customer:', err);
@@ -132,7 +144,7 @@ export default function CustomerManager() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              style={{ width: '100%', padding: '8px', marginTop: '4px' }}
+              style={{ width: '100%', padding: '8px', marginTop: '4px', boxSizing: 'border-box' }}
             />
             {validationErrors.name && (
               <span style={{ color: 'red', fontSize: '12px' }}>{validationErrors.name[0]}</span>
@@ -146,7 +158,7 @@ export default function CustomerManager() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              style={{ width: '100%', padding: '8px', marginTop: '4px' }}
+              style={{ width: '100%', padding: '8px', marginTop: '4px', boxSizing: 'border-box' }}
             />
             {validationErrors.email && (
               <span style={{ color: 'red', fontSize: '12px' }}>{validationErrors.email[0]}</span>
@@ -160,7 +172,7 @@ export default function CustomerManager() {
               name="birthDate"
               value={formData.birthDate}
               onChange={handleChange}
-              style={{ width: '100%', padding: '8px', marginTop: '4px' }}
+              style={{ width: '100%', padding: '8px', marginTop: '4px', boxSizing: 'border-box' }}
             />
             {validationErrors.birthDate && (
               <span style={{ color: 'red', fontSize: '12px' }}>{validationErrors.birthDate[0]}</span>
@@ -194,8 +206,49 @@ export default function CustomerManager() {
         </form>
       </div>
 
+      {/* --- TABLE SECTION HEADER & SEARCH --- */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h3 style={{ margin: 0 }}>Customer List ({filteredCustomers.length})</h3>
+
+        {/* Search Input Field */}
+        <div style={{ position: 'relative', width: '280px' }}>
+          <input
+            type="text"
+            placeholder="Search by name, email, or ID..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 30px 8px 12px',
+              borderRadius: '6px',
+              border: '1px solid #ccc',
+              fontSize: '14px',
+              boxSizing: 'border-box'
+            }}
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm('')}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#888',
+                fontWeight: 'bold'
+              }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* --- TABLE SECTION --- */}
-      <h3>Customer List</h3>
       {loading ? (
         <p>Loading customers...</p>
       ) : (
@@ -210,12 +263,14 @@ export default function CustomerManager() {
             </tr>
           </thead>
           <tbody>
-            {customers.length === 0 ? (
+            {filteredCustomers.length === 0 ? (
               <tr>
-                <td colSpan="5" style={{ padding: '15px', textAlign: 'center' }}>No customers found.</td>
+                <td colSpan="5" style={{ padding: '15px', textAlign: 'center', color: '#666' }}>
+                  {searchTerm ? `No customers found matching "${searchTerm}"` : 'No customers found.'}
+                </td>
               </tr>
             ) : (
-              customers.map((c) => (
+              filteredCustomers.map((c) => (
                 <tr key={c.customerId} style={{ borderBottom: '1px solid #eee' }}>
                   <td style={{ padding: '10px' }}>{c.customerId}</td>
                   <td style={{ padding: '10px' }}>{c.customerName}</td>
@@ -225,14 +280,23 @@ export default function CustomerManager() {
                   </td>
                   <td style={{ padding: '10px' }}>
                     <button
+                      type="button"
                       onClick={() => handleEdit(c)}
                       style={{ marginRight: '8px', padding: '6px 12px', cursor: 'pointer' }}
                     >
                       Edit
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleDelete(c.customerId)}
-                      style={{ padding: '6px 12px', backgroundColor: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#dc2626',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
                     >
                       Delete
                     </button>

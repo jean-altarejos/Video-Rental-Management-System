@@ -11,6 +11,8 @@ namespace Video_Rental_Management_System.Infrastructure.Persistence
         }
 
         public DbSet<Customer> Customers => Set<Customer>();
+        public DbSet<Movie> Movies => Set<Movie>();
+        public DbSet<Genre> Genres => Set<Genre>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +42,48 @@ namespace Video_Rental_Management_System.Infrastructure.Persistence
                     .IsRequired()
                     .HasDefaultValueSql("GETUTCDATE()");
             });
+
+            modelBuilder.Entity<Movie>(entity =>
+            {
+                entity.HasKey(m => m.MovieID);
+
+                entity.Property(m => m.MovieName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                // Foreign Key Relationship (One Genre to Many Movies)
+                entity.HasOne(m => m.Genre)
+                    .WithMany() // or .WithMany(g => g.Movies) if Genre has a Movies collection
+                    .HasForeignKey(m => m.GenreID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // SQL Server Default values for dates
+                entity.Property(m => m.CreatedDate)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.Property(m => m.DateAdded)
+                    .HasDefaultValueSql("CAST(GETUTCDATE() AS DATE)");
+            });
+
+            modelBuilder.Entity<Genre>(entity =>
+            {
+                entity.HasKey(u => u.GenreID);
+                entity.Property(u => u.GenreName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                entity.Property(u => u.CreatedDate)
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()");
+            });
+
+
+            modelBuilder.Entity<Genre>().HasData(
+        new Genre { GenreID = 1, GenreName = "Action", CreatedDate = DateTime.UtcNow },
+        new Genre { GenreID = 2, GenreName = "Comedy", CreatedDate = DateTime.UtcNow },
+        new Genre { GenreID = 3, GenreName = "Drama" , CreatedDate = DateTime.UtcNow },
+        new Genre { GenreID = 4, GenreName = "Sci-Fi" , CreatedDate = DateTime.UtcNow },
+        new Genre { GenreID = 5, GenreName = "Horror" , CreatedDate = DateTime.UtcNow }
+    );
         }
     }
 }
