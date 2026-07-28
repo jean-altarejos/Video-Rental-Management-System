@@ -1,10 +1,16 @@
 ﻿using FluentValidation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Video_Rental_Management_System.Application.Customers;
 
-namespace Video_Rental_Management_System.backend.src.Core.Application.Customers
+namespace Application.Customers
 {
-    public class CreateCustomerRequestValidator : AbstractValidator<CreateCustomerRequest>
+    public class UpdateCustomerRequestValidator : AbstractValidator<UpdateCustomerRequest>
     {
-        public CreateCustomerRequestValidator()
+        public UpdateCustomerRequestValidator()
         {
             // 1. Email rules
             RuleFor(x => x.Email)

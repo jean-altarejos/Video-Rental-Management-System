@@ -1,17 +1,18 @@
 ﻿using System.Net.Mail;
+using System.Xml.Linq;
 
-namespace Video_Rental_Management_System.backend.src.Core.Domain.Entities
+namespace Video_Rental_Management_System.Domain.Entities
 {
     public class Customer
     {
-        public int CustomerId { get; private set; }
-        public string CustomerName { get; private set; } = string.Empty;
-        public string Email { get; private set; } = string.Empty;
+        public int CustomerId { get;  set; }
+        public string CustomerName { get;  set; } = string.Empty;
+        public string Email { get;  set; } = string.Empty;
 
-        public bool IsSubscribedToNewsletter { get; private set; }
-        public DateTime Birthdate { get; private set; }
-        public DateTime CreatedDate { get; private set; }
-        public DateTime? ModifiedDate {get; private set;}
+        public bool IsSubscribedToNewsletter { get;  set; }
+        public DateTime Birthdate { get;  set; }
+        public DateTime CreatedDate { get;  set; }
+        public DateTime? ModifiedDate {get;  set;}
 
 
         private Customer() { }
@@ -19,11 +20,11 @@ namespace Video_Rental_Management_System.backend.src.Core.Domain.Entities
         public Customer(string custName, string email, bool isSubscribedToNewsletter, DateTime birthDate)
         {
             if (string.IsNullOrWhiteSpace(custName))
-                throw new ArgumentException("Product name cannot be empty.", nameof(custName));
+                throw new ArgumentException("Customer name cannot be empty.", nameof(custName));
 
             //100-character domain validation limit
             if (custName.Length > 100)
-                throw new ArgumentException("Product name cannot exceed 100 characters.", nameof(custName));
+                throw new ArgumentException("Customer name cannot exceed 100 characters.", nameof(custName));
 
             if (!email.Contains('@') || !MailAddress.TryCreate(email, out _))
                 throw new ArgumentException("Invalid email format. Email must contain an '@' sign and a valid domain.", nameof(email));
@@ -50,5 +51,15 @@ namespace Video_Rental_Management_System.backend.src.Core.Domain.Entities
             CreatedDate = DateTime.UtcNow;
         }
 
+
+        public void UpdateDetails(string custName, string email, bool isSubscribedToNewsletter, DateTime birthDate)
+        {
+            CustomerName = custName;
+            Email = email;
+            IsSubscribedToNewsletter = isSubscribedToNewsletter;
+            ModifiedDate = DateTime.UtcNow;
+            Birthdate = birthDate;
+            
+        }
     }
 }
