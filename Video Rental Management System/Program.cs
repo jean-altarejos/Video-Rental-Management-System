@@ -1,5 +1,6 @@
 using Application.Customers;
 using Application.Movies;
+using Application.Rental;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Video_Rental_Management_System.Application.Customers;
@@ -28,11 +29,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateCustomerRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateMovieRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateRentalRequestValidator>();
 builder.Services.AddScoped<IValidator<UpdateCustomerRequest>, UpdateCustomerRequestValidator>();
 builder.Services.AddScoped<IValidator<UpdateMovieRequest>, UpdateMovieRequestValidator>();
+builder.Services.AddScoped<IValidator<UpdateRentalDetailRequest>, UpdateRentalDetailRequestValidator>();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 
 
 

@@ -3,10 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import SidebarLayout from './components/SidebarLayout';
 import CustomerManager from './components/CustomerManager';
 import MovieManager  from './components/MovieManager';
+import RentalManager from './components/RentalManager';
 import './App.css'
 
 const InventoryManager = () => <div><h2>Inventory Module</h2><p>Inventory management forms & tables go here.</p></div>;
-const RentalManager = () => <div><h2>Rentals Module</h2><p>Rental agreements & tracking go here.</p></div>;
+//const RentalManager = () => <div><h2>Rentals Module</h2><p>Rental agreements & tracking go here.</p></div>;
 
 export default function App() {
   return (

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Video_Rental_Management_System.Application.Customers;
 using Video_Rental_Management_System.Application.Movies;
-using Video_Rental_Management_System.Domain.Entities;
+using Domain.Entities;
 using Video_Rental_Management_System.Infrastructure.Persistence;
 
 namespace Video_Rental_Management_System.Controllers

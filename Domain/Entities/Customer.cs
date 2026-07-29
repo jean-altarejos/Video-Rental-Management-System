@@ -1,7 +1,7 @@
 ﻿using System.Net.Mail;
 using System.Xml.Linq;
 
-namespace Video_Rental_Management_System.Domain.Entities
+namespace Domain.Entities
 {
     public class Customer
     {

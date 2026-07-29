@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Video_Rental_Management_System.Domain.Entities;
+﻿using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Video_Rental_Management_System.Infrastructure.Persistence
 {
@@ -13,6 +13,9 @@ namespace Video_Rental_Management_System.Infrastructure.Persistence
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<Movie> Movies => Set<Movie>();
         public DbSet<Genre> Genres => Set<Genre>();
+
+        public DbSet<RentalHeader> RentalHeaders => Set<RentalHeader>();
+        public DbSet<RentalDetail> RentalDetails => Set<RentalDetail>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -78,12 +81,52 @@ namespace Video_Rental_Management_System.Infrastructure.Persistence
 
 
             modelBuilder.Entity<Genre>().HasData(
-        new Genre { GenreID = 1, GenreName = "Action", CreatedDate = DateTime.UtcNow },
-        new Genre { GenreID = 2, GenreName = "Comedy", CreatedDate = DateTime.UtcNow },
-        new Genre { GenreID = 3, GenreName = "Drama" , CreatedDate = DateTime.UtcNow },
-        new Genre { GenreID = 4, GenreName = "Sci-Fi" , CreatedDate = DateTime.UtcNow },
-        new Genre { GenreID = 5, GenreName = "Horror" , CreatedDate = DateTime.UtcNow }
-    );
+                new Genre { GenreID = 1, GenreName = "Action", CreatedDate = DateTime.UtcNow },
+                new Genre { GenreID = 2, GenreName = "Comedy", CreatedDate = DateTime.UtcNow },
+                new Genre { GenreID = 3, GenreName = "Drama" , CreatedDate = DateTime.UtcNow },
+                new Genre { GenreID = 4, GenreName = "Sci-Fi" , CreatedDate = DateTime.UtcNow },
+                new Genre { GenreID = 5, GenreName = "Horror" , CreatedDate = DateTime.UtcNow }
+            );
+
+            modelBuilder.Entity<RentalHeader>(entity =>
+            {
+                entity.HasKey(x => x.RentalID);
+
+
+                entity.Property(x => x.DateRented)
+                    .HasDefaultValueSql("CAST(GETUTCDATE() AS DATE)");
+
+                entity.HasOne(x => x.Customer)
+                    .WithMany() 
+                    .HasForeignKey(x => x.CustomerID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(x => x.CreatedDate)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+            });
+
+            modelBuilder.Entity<RentalDetail>(entity =>
+            {
+                entity.HasKey(x => x.RentalDetailID);
+
+
+                entity.HasOne(x => x.RentalHeader)
+                    .WithMany()
+                    .HasForeignKey(x => x.RentalID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+
+                entity.HasOne(x => x.Movie)
+                    .WithMany()
+                    .HasForeignKey(x => x.MovieID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+
+                entity.Property(x => x.DateReturned)
+                     .HasDefaultValueSql("CAST(GETUTCDATE() AS DATE)");
+
+            });
         }
     }
 }
