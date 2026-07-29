@@ -10,13 +10,17 @@ namespace Application.Movies
     public class UpdateMovieRequest
     {
         [JsonPropertyName("movieName")]
-        public string MovieName { get; set; } = string.Empty; [JsonPropertyName("email")]
-
+        public string MovieName { get; set; } = string.Empty;
+        [JsonPropertyName("genreID")]
         public int GenreID { get; set; }
 
+        [JsonPropertyName("dateAdded")]
         public DateTime DateAdded { get; set; }
+        [JsonPropertyName("releaseDate")]
         public DateTime ReleaseDate { get; set; }
+        [JsonPropertyName("numberInStock")]
         public int NumberInStock { get; set; }
+        [JsonPropertyName("numberAvailable")]
         public int NumberAvailable { get; set; }
     }
 }

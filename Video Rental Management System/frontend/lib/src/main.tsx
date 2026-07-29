@@ -1,20 +1,11 @@
 // src/main.tsx
-import { StrictMode } from 'react'
+import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import React from 'react'
-import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import App from './App.jsx'
+import App from './App' 
 import './index.css'
 
-
-/*createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-
-// Create a React Query client instance
+// 1. Initialize React Query Client instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -23,24 +14,18 @@ const queryClient = new QueryClient({
       staleTime: 1000 * 60 * 5,    // Cache data for 5 minutes
     },
   },
-});*/
+});
 
+// 2. Mount React application
 const container = document.getElementById('root');
 
 if (container) {
-  // Store or check root reference on container instance
-  const root = ReactDOM.createRoot(container);
+  const root = createRoot(container);
   root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </StrictMode>
   );
 }
-
-/*ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </React.StrictMode>,
-)*/

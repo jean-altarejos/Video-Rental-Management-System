@@ -1,23 +1,36 @@
 ﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Video_Rental_Management_System.Infrastructure.Persistence;
 
 namespace Application.Movies
 {
     public class UpdateMovieRequestValidator : AbstractValidator<UpdateMovieRequest>
     {
-        public UpdateMovieRequestValidator() {
+        private readonly ApplicationDbContext _context;
+        public UpdateMovieRequestValidator(ApplicationDbContext context) {
+
+            _context = context;
+
             RuleFor(x => x.MovieName)
             .NotEmpty().WithMessage("Movie title is required.")
             .MaximumLength(100).WithMessage("Movie title cannot exceed 100 characters.");
 
-            RuleFor(x => x.GenreID)
-                .GreaterThan(0).WithMessage("Please select a valid Genre.");
+            
 
-            RuleFor(x => x.ReleaseDate)
+        
+            RuleFor(x => x.GenreID)
+                .GreaterThan(0).WithMessage("Please select a valid Genre.")
+                .MustAsync(async (genreId, cancellation) =>
+                    await _context.Genres.AnyAsync(g => g.GenreID == genreId, cancellation))
+                .WithMessage("The selected Genre does not exist in the database.");
+      
+
+        RuleFor(x => x.ReleaseDate)
                 .NotEmpty().WithMessage("Release date is required.");
 
             RuleFor(x => x.NumberInStock)

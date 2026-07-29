@@ -26,8 +26,8 @@ export default function SidebarLayout() {
           <NavLink to="/customers" style={navStyle}>
             👥 Customers
           </NavLink>
-          <NavLink to="/inventory" style={navStyle}>
-            📦 Inventory
+          <NavLink to="/movies" style={navStyle}>
+            📦 Movies
           </NavLink>
           <NavLink to="/rentals" style={navStyle}>
             🔑 Rentals

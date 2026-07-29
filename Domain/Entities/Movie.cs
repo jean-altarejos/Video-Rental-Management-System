@@ -10,24 +10,39 @@ namespace Video_Rental_Management_System.Domain.Entities
 {
     public class Movie
     {
+        [Key]
         public int MovieID { get; set; }
+
+        [Required]
+        [StringLength(100)]
         public string MovieName { get; set; } = string.Empty;
 
         [Required]
         public int GenreID { get; set; }
 
+        [System.Text.Json.Serialization.JsonIgnore]
         [ForeignKey(nameof(GenreID))]
         public virtual Genre? Genre { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
         public DateTime DateAdded { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
         public DateTime ReleaseDate { get; set; }
+
+        [Range(0,20, ErrorMessage = "Number in Stock must be between 0 and 20.")]
         public int NumberInStock { get; set; }
+
+        [Range(0, 20)]
         public int NumberAvailable { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
 
         private Movie() { }
 
-        public Movie(string movieName, int genreId, DateTime releaseDate, int numberInStock, int numberAvailable)
+        public Movie(string movieName, int genreId, DateTime releaseDate, DateTime dateAdded, int numberInStock, int numberAvailable)
         {
             if (string.IsNullOrWhiteSpace(movieName))
                 throw new ArgumentException("Movie name cannot be empty.", nameof(movieName));
@@ -45,7 +60,7 @@ namespace Video_Rental_Management_System.Domain.Entities
             CreatedDate = DateTime.UtcNow;
         }
 
-        public void UpdateDetails(string movieName, int genreId, DateTime releaseDate, int numberInStock, int numberAvailable)
+        public void UpdateDetails(string movieName, int genreId, DateTime releaseDate, DateTime dateAdded, int numberInStock, int numberAvailable)
         {
             if (string.IsNullOrWhiteSpace(movieName))
                 throw new ArgumentException("Movie name cannot be empty.", nameof(movieName));
@@ -59,7 +74,7 @@ namespace Video_Rental_Management_System.Domain.Entities
             GenreID = genreId;
             ReleaseDate = releaseDate;
             NumberInStock = numberInStock;
-            NumberAvailable = numberInStock; // Reset available count to match stock
+            NumberAvailable = numberAvailable; // Reset available count to match stock
             ModifiedDate = DateTime.UtcNow;
         }
     }
