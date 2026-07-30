@@ -30,7 +30,7 @@ namespace Video_Rental_Management_System.Controllers
 
         //Read ALL - Get: api/customers
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] bool all = true )
         {
             var customers = await _context.Customers.ToListAsync();
             return Ok(customers);

@@ -1,12 +1,12 @@
-﻿using Application.Customers;
+﻿using Application.DTO;
 using Application.Movies;
 using Azure.Core;
+using Domain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Video_Rental_Management_System.Application.Customers;
 using Video_Rental_Management_System.Application.Movies;
-using Domain.Entities;
 using Video_Rental_Management_System.Infrastructure.Persistence;
 
 namespace Video_Rental_Management_System.Controllers
@@ -31,12 +31,14 @@ namespace Video_Rental_Management_System.Controllers
         }
 
         //Read ALL - Get: api/movies
+        /*
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var movies = await _context.Movies.ToListAsync();
             return Ok(movies);
         }
+        */
 
         //Read one by ID - Get: api/movies/{id}
         [HttpGet("{id:int}")]
@@ -104,6 +106,50 @@ namespace Video_Rental_Management_System.Controllers
                 .ToListAsync();
 
             return Ok(genres);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMovies([FromQuery] MovieQueryParameter queryParams)
+        {
+            var query = _context.Movies.AsQueryable();
+
+            // 1. Filter by Genre (Case-insensitive)
+            if (!string.IsNullOrWhiteSpace(queryParams.Genre))
+            {
+                query = query.Where(m => m.Genre.ToString().ToLower() == queryParams.Genre.ToLower());
+            }
+
+            // 2. Filter by Stock Availability
+            if (queryParams.InStockOnly.HasValue && queryParams.InStockOnly.Value)
+            {
+                query = query.Where(m => m.NumberAvailable > 0);
+            }
+
+            // 3. Optional Search Term
+            if (!string.IsNullOrWhiteSpace(queryParams.SearchTerm))
+            {
+                query = query.Where(m => m.MovieName.Contains(queryParams.SearchTerm));
+            }
+
+            // 4. Get Total Count for Pagination Metadata
+            var totalCount = await query.CountAsync();
+
+            // 5. Apply Pagination (Skip & Take)
+            var items = await query
+                .OrderBy(m => m.MovieName)
+                .Skip((queryParams.PageNumber - 1) * queryParams.PageSize)
+                .Take(queryParams.PageSize)
+                .ToListAsync();
+
+            var result = new PagedResult<Movie>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = queryParams.PageNumber,
+                PageSize = queryParams.PageSize
+            };
+
+            return Ok(result);
         }
     }
 }

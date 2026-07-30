@@ -10,7 +10,7 @@ namespace Application.Rental
 {
     public class CreateRentalRequest
     {
-        [JsonPropertyName("name")]
+        [JsonPropertyName("customerId")]
         public int CustomerID { get; set; }
         [JsonPropertyName("daterented")]
         public DateTime DateRented { get; set; } = DateTime.Now;
@@ -22,6 +22,6 @@ namespace Application.Rental
     {
         [JsonPropertyName("movie")]
         public int MovieID { get; set; }
-        public DateTime DateReturned {  get; set; } = DateTime.Now; 
+        public DateTime? DateReturned {  get; set; } = DateTime.Now; 
     }
 }

@@ -37,7 +37,12 @@ namespace Video_Rental_Management_System.Controllers
         public async Task<IActionResult> GetRentals()
         {
             var rentals = await _context.RentalHeaders
-                .ToListAsync();
+            .Include(r => r.Customer)
+            .Include(r => r.RentalDetails)
+                .ThenInclude(d => d.Movie) 
+            .OrderByDescending(r => r.DateRented)
+            .ToListAsync();
+
             return Ok(rentals);
         }
 
@@ -64,6 +69,7 @@ namespace Video_Rental_Management_System.Controllers
                 MovieID = d.MovieID,
                 DateReturned = null
             }).ToList();
+
 
             _context.RentalDetails.AddRange(details);
             await _context.SaveChangesAsync();
@@ -121,6 +127,7 @@ namespace Video_Rental_Management_System.Controllers
                 .Include(r => r.RentalDetails)
                     .ThenInclude(d => d.Movie)
                 .FirstOrDefaultAsync(r => r.RentalID == id);
+
 
             if (rental == null)
             {

@@ -39,6 +39,7 @@ namespace Domain.Entities
         public int NumberAvailable { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        
 
         private Movie() { }
 

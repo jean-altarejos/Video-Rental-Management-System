@@ -2,6 +2,9 @@ using Application.Customers;
 using Application.Movies;
 using Application.Rental;
 using FluentValidation;
+using Video_Rental_Management_System.Infrastructure.Middleware;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Video_Rental_Management_System.Application.Customers;
 using Video_Rental_Management_System.Infrastructure.Persistence;
@@ -35,6 +38,24 @@ builder.Services.AddScoped<IValidator<UpdateMovieRequest>, UpdateMovieRequestVal
 builder.Services.AddScoped<IValidator<UpdateRentalDetailRequest>, UpdateRentalDetailRequestValidator>();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+}).AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User","Admin"));
+}
+);
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
